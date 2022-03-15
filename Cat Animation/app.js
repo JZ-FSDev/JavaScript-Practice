@@ -1,13 +1,21 @@
 var cat = document.querySelector("#cat");
+var cat_width_rendered = document.querySelector("#catImage").naturalWidth;
+var cat_height_rendered = document.querySelector("#catImage").naturalHeight;
+
+
 var canvas = document.querySelector("#canvas");
 
 canvas.addEventListener("click", getClickPosition, false);
 
-function getClickPosition(e){
-    var xPos = e.clientX;
-    var yPos = e.clientY;
-    
+function getClickPosition(e) {
+    var parentPosition = getPosition(canvas);
+
+
+    var xPos = e.clientX - parentPosition.x - (cat_width_rendered / 2);
+    var yPos = e.clientY - parentPosition.y - (cat_height_rendered / 2);
+
     var translate3DValue = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
+    cat.style.transform = translate3DValue;
 }
 
 // helper function to get an element's exact position
