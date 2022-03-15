@@ -1,0 +1,8 @@
+#cat{
+    transform: translate3d(50px, 50px, 0);
+}
+
+#canvas{
+    height: 950px;
+    border: 1px solid black;
+}
