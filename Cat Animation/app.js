@@ -1,33 +1,35 @@
-var cat = document.querySelector("#cat");
-var cat_width_rendered = document.querySelector("#cat").naturalWidth;
-var cat_height_rendered = document.querySelector("#cat").naturalHeight;
+const cat = document.getElementById("cat");
+const canvas = document.querySelector("#canvas");
 
-var canvas = document.querySelector("#canvas");
+const widthOfSpriteSheet = 1770;
+const widthOfEachSprite = 295;
+const heightOfEachSprite = 453;
 
 var animationInterval;
-var spriteSheet = document.getElementById("cat");
-var widthOfSpriteSheet = 1770;
-var widthOfEachSprite = 295;
-var heightOfEachSprite = 453;
 
 canvas.addEventListener("click", getClickPosition, false);
 
 function getClickPosition(e) {
-    var parentPosition = getPosition(canvas);
+    let parentPosition = getPosition(canvas);
 
-    var xCat = getOffset(cat).left;
-    var yCat = getOffset(cat).top;
+    let xCat = getOffset(cat).left - parentPosition.x;
+    let yCat = getOffset(cat).top - parentPosition.y;
 
-    var xPos = e.clientX - parentPosition.x - (widthOfEachSprite / 2);
-    var yPos = e.clientY - parentPosition.y - (heightOfEachSprite / 2);
 
-    var translate3DValue = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
-    
-    cat.style.backgroundImage = "url(./images/Left\ cat\ sprite\ sheet.png)";
+    let xPos = e.clientX - parentPosition.x - (widthOfEachSprite / 2);
+    let yPos = e.clientY - parentPosition.y - (heightOfEachSprite / 2);
+
+    let translate3DValue = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
+
+    if (xCat > xPos) {
+        cat.style.backgroundImage = "url(./images/Left_cat_sprite_sheet.png)";
+    } else {
+        cat.style.backgroundImage = "url(./images/Right_cat_sprite_sheet.png)";
+    }
 
     cat.style.transform = translate3DValue;
     startAnimation();
-    setTimeout(function() { stopAnimation(); }, 1000);
+    setTimeout(function () { stopAnimation(); }, 1000);
 }
 
 
@@ -61,7 +63,7 @@ function getPosition(el) {
 
 function stopAnimation() {
     clearInterval(animationInterval);
-    spriteSheet.style.backgroundPosition = "0px 0px";
+    cat.style.backgroundPosition = "0px 0px";
 }
 
 
@@ -69,17 +71,17 @@ function startAnimation() {
     var position = widthOfEachSprite; //start position for the image
     const speed = 100; //in millisecond(ms)
     const diff = widthOfEachSprite; //difference between two sprites
-  
+
     animationInterval = setInterval(() => {
-      spriteSheet.style.backgroundPosition = `-${position}px 0px`;
-  
-      if (position < widthOfSpriteSheet) {
-        position = position + diff;
-      } else {
-        //increment the position by the width of each sprite each time
-        position = widthOfEachSprite;
-      }
-      //reset the position to show first sprite after the last one
+        cat.style.backgroundPosition = `-${position}px 0px`;
+
+        if (position < widthOfSpriteSheet) {
+            position = position + diff;
+        } else {
+            //increment the position by the width of each sprite each time
+            position = widthOfEachSprite;
+        }
+        //reset the position to show first sprite after the last one
     }, speed);
 }
 
@@ -87,7 +89,7 @@ function startAnimation() {
 function getOffset(el) {
     const rect = el.getBoundingClientRect();
     return {
-      left: rect.left + window.scrollX,
-      top: rect.top + window.scrollY
+        left: rect.left + window.scrollX,
+        top: rect.top + window.scrollY
     };
-  }
+}
