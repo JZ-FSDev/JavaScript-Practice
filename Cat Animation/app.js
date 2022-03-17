@@ -8,18 +8,26 @@ var animationInterval;
 var spriteSheet = document.getElementById("cat");
 var widthOfSpriteSheet = 1770;
 var widthOfEachSprite = 295;
+var heightOfEachSprite = 453;
 
 canvas.addEventListener("click", getClickPosition, false);
 
 function getClickPosition(e) {
     var parentPosition = getPosition(canvas);
 
-    var xPos = e.clientX - parentPosition.x - (cat_width_rendered / 2);
-    var yPos = e.clientY - parentPosition.y - (cat_height_rendered / 2);
+    var xCat = getOffset(cat).left;
+    var yCat = getOffset(cat).top;
+
+    var xPos = e.clientX - parentPosition.x - (widthOfEachSprite / 2);
+    var yPos = e.clientY - parentPosition.y - (heightOfEachSprite / 2);
 
     var translate3DValue = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
     
+    cat.style.backgroundImage = "url(./images/Left\ cat\ sprite\ sheet.png)";
+
     cat.style.transform = translate3DValue;
+    startAnimation();
+    setTimeout(function() { stopAnimation(); }, 1000);
 }
 
 
@@ -53,6 +61,7 @@ function getPosition(el) {
 
 function stopAnimation() {
     clearInterval(animationInterval);
+    spriteSheet.style.backgroundPosition = "0px 0px";
 }
 
 
@@ -73,3 +82,12 @@ function startAnimation() {
       //reset the position to show first sprite after the last one
     }, speed);
 }
+
+
+function getOffset(el) {
+    const rect = el.getBoundingClientRect();
+    return {
+      left: rect.left + window.scrollX,
+      top: rect.top + window.scrollY
+    };
+  }
