@@ -1,8 +1,17 @@
 #cat{
+    height: 453px;
+    width: 295px;
+    background: url(./images/Right\ cat\ sprite\ sheet.png);
+
     transform: translate3d(50px, 50px, 0);
+    transition: transform 1s cubic-bezier(.64,.32,.72,.96);
 }
 
 #canvas{
-    height: 950px;
+    height: 900px;
     border: 1px solid black;
+}
+
+body{
+    background-attachment: fixed;
 }
