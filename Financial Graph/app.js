@@ -4,6 +4,10 @@ const ctx = chart.getContext("2d");
 chart.addEventListener("mousemove", function(event) {
     crosshair(event);
 });
+chart.addEventListener("onmouseover", function(event) {
+    crosshair(event);
+});
+
 document.addEventListener("DOMContentLoaded", startAnimation);
 
 const candleWidth = 20;
@@ -24,7 +28,7 @@ var lMin = height;
 
 let xInc = (width - xLeft) / numCandles; // distance between each candle
 
-var o, c, h, l;
+var o, c, h, l, t;
 
 var candles = new Array;
 
@@ -62,6 +66,7 @@ class CandleStick {
         ctx.stroke();
 
         ctx.beginPath();
+        ctx.setLineDash([]);
         ctx.moveTo(xLeft + xInc * t + candleWidth / 2, convertY(h));
         ctx.lineTo(xLeft + xInc * t + candleWidth / 2, convertY(l));
         ctx.stroke();
@@ -69,10 +74,10 @@ class CandleStick {
 }
 
 function startAnimation() {
+    generateCandles();
     setInterval(() => {
         ctx.clearRect(0, 0, width, height);
-
-        // draw();
+        draw();
     }, 1);
 }
 
@@ -81,6 +86,8 @@ function displayInfo() {
 }
 
 function crosshair(e) {
+    ctx.strokeStyle = "#000000";
+
     // vertical line
     ctx.beginPath();
     ctx.setLineDash([5, 15]);
@@ -96,7 +103,14 @@ function crosshair(e) {
     ctx.stroke();
 }
 
-function firstDraw() {
+function draw(){
+    for(let i = 0; i < candles.length; i++){
+        candles[i].draw(candles[i].o, candles[i].c, candles[i].h, candles[i].l, candles[i].t);
+    }
+    drawAxis();
+}
+
+function generateCandles() {
     // draw candles
     for (let t = 0; t < numCandles; t++) {
         // randomize values
@@ -112,9 +126,9 @@ function firstDraw() {
         let candle = new CandleStick(o, c, h, l, t);
         candles.push(candle);
     }
+}
 
-
-    // draw axis
+function drawAxis(){
     ctx.strokeStyle = "#000000";
     ctx.fillStyle = "#000000";
     ctx.beginPath();
@@ -127,6 +141,8 @@ function firstDraw() {
         ctx.fillText(Math.round(i), yAxisLabelXLeft, convertY(i));
     }
 }
+
+
 
 
 function convertY(y) {
