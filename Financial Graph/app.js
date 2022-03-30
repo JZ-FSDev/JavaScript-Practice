@@ -1,11 +1,8 @@
-const chart = document.getElementById('myChart');
-const ctx = chart.getContext("2d");
+const canvas = document.getElementById('myChart');
+const ctx = canvas.getContext("2d");
 
-chart.addEventListener("mousemove", function(event) {
-    crosshair(event);
-});
-chart.addEventListener("onmouseover", function(event) {
-    crosshair(event);
+canvas.addEventListener("mousemove", function (event) {
+    updateMouseCoord(event);
 });
 
 document.addEventListener("DOMContentLoaded", startAnimation);
@@ -29,6 +26,8 @@ var lMin = height;
 let xInc = (width - xLeft) / numCandles; // distance between each candle
 
 var o, c, h, l, t;
+
+var mouseX, mouseY;
 
 var candles = new Array;
 
@@ -77,34 +76,47 @@ function startAnimation() {
     generateCandles();
     setInterval(() => {
         ctx.clearRect(0, 0, width, height);
-        draw();
+        drawCandles();
+        drawCrosshair();
+        displayInfo();
     }, 1);
 }
 
 function displayInfo() {
-
+    if((mouseX - xLeft) % xInc < candleWidth){
+        ctx.strokeStyle = "#000000";
+        ctx.font = "15px Arial";
+        let index = Math.round((mouseX - xLeft - 2) / xInc);
+        if(index >= 0){
+            ctx.fillText(index, mouseX, mouseY);
+        }
+    }
 }
 
-function crosshair(e) {
+function updateMouseCoord(e) {
+    mouseX = e.clientX - getExactPos(canvas).x;
+    mouseY = e.clientY - getExactPos(canvas).y;
+}
+
+function drawCrosshair() {
     ctx.strokeStyle = "#000000";
+    ctx.setLineDash([5, 15]);
 
     // vertical line
     ctx.beginPath();
-    ctx.setLineDash([5, 15]);
-    ctx.moveTo(e.clientX, 0);
-    ctx.lineTo(e.clientX, height);
+    ctx.moveTo(mouseX, 0);
+    ctx.lineTo(mouseX, height);
     ctx.stroke();
 
     // horizontal line
     ctx.beginPath();
-    ctx.setLineDash([5, 15]);
-    ctx.moveTo(0, e.clientY);
-    ctx.lineTo(width, e.clientY);
+    ctx.moveTo(0, mouseY);
+    ctx.lineTo(width, mouseY);
     ctx.stroke();
 }
 
-function draw(){
-    for(let i = 0; i < candles.length; i++){
+function drawCandles() {
+    for (let i = 0; i < candles.length; i++) {
         candles[i].draw(candles[i].o, candles[i].c, candles[i].h, candles[i].l, candles[i].t);
     }
     drawAxis();
@@ -114,8 +126,8 @@ function generateCandles() {
     // draw candles
     for (let t = 0; t < numCandles; t++) {
         // randomize values
-        o = Math.random() * (height - 100);
-        c = Math.random() * (height - 100);
+        o = Math.random() * height;
+        c = Math.random() * height;
         h = Math.max(o, c) + Math.random() * 50;
         l = Math.min(o, c) - Math.random() * 50;
 
@@ -128,7 +140,7 @@ function generateCandles() {
     }
 }
 
-function drawAxis(){
+function drawAxis() {
     ctx.strokeStyle = "#000000";
     ctx.fillStyle = "#000000";
     ctx.beginPath();
@@ -137,14 +149,38 @@ function drawAxis(){
     ctx.stroke();
 
     for (let i = lMin; i <= hMax; i += (hMax - lMin) / 10) {
-        ctx.font = "10px Arial";
+        ctx.font = "15px Arial";
         ctx.fillText(Math.round(i), yAxisLabelXLeft, convertY(i));
     }
 }
 
-
-
-
 function convertY(y) {
     return height - y;
+}
+
+// helper function to get an element's exact position
+function getExactPos(el) {
+
+    let xPosition = 0;
+    let yPosition = 0;
+
+    while (el) {
+        if (el.tagName == "BODY") {
+            // deal with browser quirks with body/window/document and page scroll
+            let xScrollPos = el.scrollLeft || document.documentElement.scrollLeft;
+            let yScrollPos = el.scrollTop || document.documentElement.scrollTop;
+
+            xPosition += (el.offsetLeft - xScrollPos + el.clientLeft);
+            yPosition += (el.offsetTop - yScrollPos + el.clientTop);
+        } else {
+            xPosition += (el.offsetLeft - el.scrollLeft + el.clientLeft);
+            yPosition += (el.offsetTop - el.scrollTop + el.clientTop);
+        }
+
+        el = el.offsetParent;
+    }
+    return {
+        x: xPosition,
+        y: yPosition
+    };
 }
