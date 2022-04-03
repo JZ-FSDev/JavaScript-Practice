@@ -22,6 +22,8 @@ const numCandles = 50;
 const yTop = 100; // top offset
 const xLeft = 100; // left offset
 
+const xRight = 300;
+
 const yAxisXLeft = 75;
 const yAxisLabelXLeft = 25;
 
@@ -34,7 +36,7 @@ var width = document.getElementById('myChart').clientWidth;
 var hMax = 0;
 var lMin = height;
 
-let xInc = (width - xLeft) / numCandles; // distance between each candle
+let xInc = (width - xLeft - xRight) / numCandles; // distance between each candle
 
 var o, c, h, l, t;
 
@@ -89,6 +91,8 @@ function startAnimation() {
     setInterval(() => {
         ctx.clearRect(0, 0, width, height);
         drawCandles();
+        drawYAxis();
+        drawXAxis();
         if(isMouseHover){
             drawCrosshair();
             displayInfo();
@@ -137,7 +141,6 @@ function drawCandles() {
     for (let i = 0; i < candles.length; i++) {
         candles[i].draw(candles[i].o, candles[i].c, candles[i].h, candles[i].l, candles[i].t);
     }
-    drawAxis();
 }
 
 function generateCandles() {
@@ -161,7 +164,7 @@ function generateCandles() {
 
 console.log(hMax, lMin);
 
-function drawAxis() {
+function drawYAxis() {
     ctx.strokeStyle = "#000000";
     ctx.fillStyle = "#000000";
     ctx.beginPath();
@@ -178,6 +181,21 @@ function drawAxis() {
 function convertY(y) {
     return height - y;
 }
+
+function drawXAxis(){
+    ctx.strokeStyle = "#000000";
+    ctx.fillStyle = "#000000";
+    ctx.beginPath();
+    ctx.moveTo(0, convertY(50));
+    ctx.lineTo(width, convertY(50));
+    ctx.stroke();
+
+    for (let i = 0; i <= numCandles; i += numCandles / 10) {
+        ctx.font = font + "px Arial";
+        ctx.fillText(i, xLeft + (width - xLeft - xRight) / 50 * i, convertY(20));
+    }
+}
+
 
 // helper function to get an element's exact position
 function getExactPos(el) {
