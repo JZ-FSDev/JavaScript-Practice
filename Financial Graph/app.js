@@ -5,6 +5,15 @@ canvas.addEventListener("mousemove", function (event) {
     updateMouseCoord(event);
 });
 
+var isMouseHover = false
+
+canvas.addEventListener("mouseleave", function (event) {
+    isMouseHover = false
+});
+canvas.addEventListener("mouseover", function (event) {
+    isMouseHover = true
+});
+
 document.addEventListener("DOMContentLoaded", startAnimation);
 
 const candleWidth = 20;
@@ -15,6 +24,8 @@ const xLeft = 100; // left offset
 
 const yAxisXLeft = 75;
 const yAxisLabelXLeft = 25;
+
+const font = 15;
 
 
 var height = document.getElementById('myChart').clientHeight;
@@ -28,6 +39,7 @@ let xInc = (width - xLeft) / numCandles; // distance between each candle
 var o, c, h, l, t;
 
 var mouseX, mouseY;
+var onScreen;
 
 var candles = new Array;
 
@@ -51,7 +63,7 @@ class CandleStick {
     }
 
     draw(o, c, h, l, t) {
-        if (o < c) {
+        if (o > c) {
             ctx.fillStyle = "#FF0000";
             ctx.strokeStyle = "#FF0000";
         } else {
@@ -77,18 +89,24 @@ function startAnimation() {
     setInterval(() => {
         ctx.clearRect(0, 0, width, height);
         drawCandles();
-        drawCrosshair();
-        displayInfo();
+        if(isMouseHover){
+            drawCrosshair();
+            displayInfo();
+        }
     }, 1);
 }
 
 function displayInfo() {
-    if((mouseX - xLeft) % xInc < candleWidth){
+    if ((mouseX - xLeft) % xInc < candleWidth) {
         ctx.strokeStyle = "#000000";
-        ctx.font = "15px Arial";
+        ctx.font = font + "px Arial";
         let index = Math.round((mouseX - xLeft - 2) / xInc);
-        if(index >= 0){
-            ctx.fillText(index, mouseX, mouseY);
+        if (index >= 0) {
+            ctx.fillText("O: " + Math.round(candles[index].o), mouseX + 25, mouseY + 20);
+            ctx.fillText("C: " + Math.round(candles[index].c), mouseX + 25, mouseY + 40);
+            ctx.fillText("H: " + Math.round(candles[index].h), mouseX + 25, mouseY + 60);
+            ctx.fillText("L: " + Math.round(candles[index].l), mouseX + 25, mouseY + 80);
+            ctx.fillText("T: " + Math.round(candles[index].t), mouseX + 25, mouseY + 100);
         }
     }
 }
@@ -126,19 +144,22 @@ function generateCandles() {
     // draw candles
     for (let t = 0; t < numCandles; t++) {
         // randomize values
-        o = Math.random() * height;
-        c = Math.random() * height;
-        h = Math.max(o, c) + Math.random() * 50;
-        l = Math.min(o, c) - Math.random() * 50;
+        o = Math.round(Math.random() * (height - 250) + 125);
+        c = Math.round(Math.random() * (height - 250) + 125);
+        h = Math.round(Math.max(o, c) + Math.random() * 50);
+        l = Math.round(Math.min(o, c) - Math.random() * 50);
 
         // update hMax and hMin
         hMax = Math.max(hMax, h);
         lMin = Math.min(lMin, l);
+        console.log(hMax, lMin);
 
         let candle = new CandleStick(o, c, h, l, t);
         candles.push(candle);
     }
 }
+
+console.log(hMax, lMin);
 
 function drawAxis() {
     ctx.strokeStyle = "#000000";
@@ -148,9 +169,9 @@ function drawAxis() {
     ctx.lineTo(yAxisXLeft, height);
     ctx.stroke();
 
-    for (let i = lMin; i <= hMax; i += (hMax - lMin) / 10) {
-        ctx.font = "15px Arial";
-        ctx.fillText(Math.round(i), yAxisLabelXLeft, convertY(i));
+    for (let i = lMin; i <= hMax + 5; i += (hMax - lMin) / 10) {
+        ctx.font = font + "px Arial";
+        ctx.fillText(Math.round(i), yAxisLabelXLeft, convertY(i - font/4));
     }
 }
 
