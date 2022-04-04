@@ -14,6 +14,10 @@ canvas.addEventListener("mouseover", function (event) {
     isMouseHover = true
 });
 
+canvas.addEventListener("onclick", function (event) {
+    addLine();
+});
+
 document.addEventListener("DOMContentLoaded", startAnimation);
 
 const candleWidth = 20;
@@ -46,6 +50,9 @@ var onScreen;
 
 var candles = new Array;
 
+var lines = new Array;
+
+var updateSpeed = 1000;
 var msPassed = 0;
 
 
@@ -57,14 +64,6 @@ class CandleStick {
         this.l = l;
         this.t = t;
         this.draw(o, c, h, l, t);
-
-        var div = document.createElement('div');
-        var canvas = document.createElement('canvas');
-        canvas.width = candleWidth;
-
-        div.appendChild(canvas);
-        document.getElementsByTagName('body')[0].appendChild(div);
-        div.addEventListener("mouseover", displayInfo);
     }
 
     draw(o, c, h, l, t) {
@@ -89,12 +88,40 @@ class CandleStick {
     }
 }
 
+class Line {
+    constructor(x1, y1, x2, y2) {
+        this.x1 = x1;
+        this.x2 = x2;
+        this.y1 = y1;
+        this.y2 = y2;
+    }
+
+    draw(x1, y1, x2, y2) {
+        ctx.strokeStyle = "#0000FF";
+        ctx.fillStyle = "#0000FF";
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+    }
+}
+
+function addLine() {
+    
+}
+
+function drawLines() {
+    for(let i = 0; i < lines.length; i++){
+        lines[i].draw(lines[i].x1, lines[i].y1, lines[i].x2, lines[i].y2);
+    }
+}
+
 function startAnimation() {
     generateCandles(numCandles);
     setInterval(() => {
         msPassed++;
         console.log(msPassed);
-        if(msPassed % 500 == 0){
+        if (msPassed % updateSpeed == 0) {
             generateCandles(1);
             updateMaxMin();
         }
@@ -103,7 +130,7 @@ function startAnimation() {
         drawYAxis();
         drawXAxis();
         drawSideBar();
-        if(isMouseHover && mouseX < width - 250){
+        if (isMouseHover && mouseX < width - 250) {
             drawCrosshair();
             displayInfo();
         }
@@ -148,16 +175,9 @@ function drawCrosshair() {
 }
 
 function drawCandles() {
-    if(candles.length > 50){
-        for (let i = candles.length - numCandles; i < candles.length; i++) {
-            candles[i].draw(candles[i].o, candles[i].c, candles[i].h, candles[i].l, candles[i].t - (candles.length - numCandles));
-        }
-    }else{
-        for (let i = candles.length - numCandles; i < candles.length; i++) {
-            candles[i].draw(candles[i].o, candles[i].c, candles[i].h, candles[i].l, candles[i].t);
-        }
+    for (let i = candles.length - numCandles; i < candles.length; i++) {
+        candles[i].draw(candles[i].o, candles[i].c, candles[i].h, candles[i].l, candles[i].t - (candles.length - numCandles));
     }
-
 }
 
 function generateCandles(num) {
@@ -175,10 +195,10 @@ function generateCandles(num) {
     updateMaxMin();
 }
 
-function updateMaxMin(){
+function updateMaxMin() {
     hMax = 0;
     lMin = height;
-    for(let i = currCandleNum - numCandles; i < currCandleNum; i++){
+    for (let i = currCandleNum - numCandles; i < currCandleNum; i++) {
         hMax = Math.max(hMax, candles[i].h);
         lMin = Math.min(lMin, candles[i].l);
     }
@@ -194,7 +214,7 @@ function drawYAxis() {
 
     for (let i = lMin; i <= hMax + 5; i += (hMax - lMin) / 10) {
         ctx.font = font + "px Arial";
-        ctx.fillText(Math.round(i), yAxisLabelXLeft, convertY(i - font/4));
+        ctx.fillText(Math.round(i), yAxisLabelXLeft, convertY(i - font / 4));
     }
 }
 
@@ -202,7 +222,7 @@ function convertY(y) {
     return height - y;
 }
 
-function drawXAxis(){
+function drawXAxis() {
     ctx.strokeStyle = "#000000";
     ctx.fillStyle = "#000000";
     ctx.beginPath();
@@ -210,18 +230,13 @@ function drawXAxis(){
     ctx.lineTo(width, convertY(50));
     ctx.stroke();
 
-    for(let i = 1; i < 10; i++){
+    for (let i = 0; i <= 5; i++) {
         ctx.font = font + "px Arial";
-        ctx.fillText(currCandleNum - numCandles + i * numCandles / 10, xLeft + (width - xLeft - xRight) / 10 * i, convertY(20));
+        ctx.fillText(currCandleNum - numCandles + i * numCandles / 5, xLeft + (width - xLeft - xRight) / 5 * i, convertY(20));
     }
-
-    // for (let i = currCandleNum - numCandles; i <= numCandles; i += numCandles / 10) {
-    //     ctx.font = font + "px Arial";
-    //     ctx.fillText(i, xLeft + (width - xLeft - xRight) / 50 * i, convertY(20));
-    // }
 }
 
-function drawSideBar(){
+function drawSideBar() {
     ctx.strokeStyle = "#000000";
     ctx.fillStyle = "#000000";
     ctx.beginPath();
@@ -234,8 +249,20 @@ function drawSideBar(){
 
     ctx.font = font + "px Arial";
     ctx.fillText("Speed", 1750, convertY(675));
+
+    ctx.font = font + "px Arial";
+    ctx.fillText("Drawing Tools", 1730, convertY(475));
 }
 
+function setSpeed(speed) {
+    updateSpeed = speed;
+}
+
+function setNumCandles(num) {
+    numCandles = num;
+    updateMaxMin();
+    xInc = (width - xLeft - xRight) / numCandles;
+}
 
 // helper function to get an element's exact position
 function getExactPos(el) {
