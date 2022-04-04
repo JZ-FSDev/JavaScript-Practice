@@ -96,6 +96,7 @@ function startAnimation() {
         console.log(msPassed);
         if(msPassed % 500 == 0){
             generateCandles(1);
+            updateMaxMin();
         }
         ctx.clearRect(0, 0, width, height);
         drawCandles();
@@ -113,7 +114,7 @@ function displayInfo() {
     if ((mouseX - xLeft) % xInc < candleWidth) {
         ctx.strokeStyle = "#000000";
         ctx.font = font + "px Arial";
-        let index = Math.round((mouseX - xLeft - 2) / xInc);
+        let index = Math.round((mouseX - xLeft - 2) / xInc) + (candles.length - numCandles);
         if (index >= 0) {
             ctx.fillText("O: " + Math.round(candles[index].o), mouseX + 25, mouseY + 20);
             ctx.fillText("C: " + Math.round(candles[index].c), mouseX + 25, mouseY + 40);
@@ -168,13 +169,18 @@ function generateCandles(num) {
         h = Math.round(Math.max(o, c) + Math.random() * 50);
         l = Math.round(Math.min(o, c) - Math.random() * 50);
 
-        // update hMax and hMin
-        hMax = Math.max(hMax, h);
-        lMin = Math.min(lMin, l);
-
         let candle = new CandleStick(o, c, h, l, currCandleNum++);
         candles.push(candle);
-        
+    }
+    updateMaxMin();
+}
+
+function updateMaxMin(){
+    hMax = 0;
+    lMin = height;
+    for(let i = currCandleNum - numCandles; i < currCandleNum; i++){
+        hMax = Math.max(hMax, candles[i].h);
+        lMin = Math.min(lMin, candles[i].l);
     }
 }
 
@@ -204,10 +210,15 @@ function drawXAxis(){
     ctx.lineTo(width, convertY(50));
     ctx.stroke();
 
-    for (let i = 0; i <= numCandles; i += numCandles / 10) {
+    for(let i = 1; i < 10; i++){
         ctx.font = font + "px Arial";
-        ctx.fillText(i, xLeft + (width - xLeft - xRight) / 50 * i, convertY(20));
+        ctx.fillText(currCandleNum - numCandles + i * numCandles / 10, xLeft + (width - xLeft - xRight) / 10 * i, convertY(20));
     }
+
+    // for (let i = currCandleNum - numCandles; i <= numCandles; i += numCandles / 10) {
+    //     ctx.font = font + "px Arial";
+    //     ctx.fillText(i, xLeft + (width - xLeft - xRight) / 50 * i, convertY(20));
+    // }
 }
 
 function drawSideBar(){
