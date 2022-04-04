@@ -17,7 +17,8 @@ canvas.addEventListener("mouseover", function (event) {
 document.addEventListener("DOMContentLoaded", startAnimation);
 
 const candleWidth = 20;
-const numCandles = 50;
+var numCandles = 50;
+var currCandleNum = 0;
 
 const yTop = 100; // top offset
 const xLeft = 100; // left offset
@@ -44,6 +45,8 @@ var mouseX, mouseY;
 var onScreen;
 
 var candles = new Array;
+
+var msPassed = 0;
 
 
 class CandleStick {
@@ -87,13 +90,19 @@ class CandleStick {
 }
 
 function startAnimation() {
-    generateCandles();
+    generateCandles(numCandles);
     setInterval(() => {
+        msPassed++;
+        console.log(msPassed);
+        if(msPassed % 500 == 0){
+            generateCandles(1);
+        }
         ctx.clearRect(0, 0, width, height);
         drawCandles();
         drawYAxis();
         drawXAxis();
-        if(isMouseHover){
+        drawSideBar();
+        if(isMouseHover && mouseX < width - 250){
             drawCrosshair();
             displayInfo();
         }
@@ -138,14 +147,21 @@ function drawCrosshair() {
 }
 
 function drawCandles() {
-    for (let i = 0; i < candles.length; i++) {
-        candles[i].draw(candles[i].o, candles[i].c, candles[i].h, candles[i].l, candles[i].t);
+    if(candles.length > 50){
+        for (let i = candles.length - numCandles; i < candles.length; i++) {
+            candles[i].draw(candles[i].o, candles[i].c, candles[i].h, candles[i].l, candles[i].t - (candles.length - numCandles));
+        }
+    }else{
+        for (let i = candles.length - numCandles; i < candles.length; i++) {
+            candles[i].draw(candles[i].o, candles[i].c, candles[i].h, candles[i].l, candles[i].t);
+        }
     }
+
 }
 
-function generateCandles() {
+function generateCandles(num) {
     // draw candles
-    for (let t = 0; t < numCandles; t++) {
+    for (let t = 0; t < num; t++) {
         // randomize values
         o = Math.round(Math.random() * (height - 250) + 125);
         c = Math.round(Math.random() * (height - 250) + 125);
@@ -155,14 +171,12 @@ function generateCandles() {
         // update hMax and hMin
         hMax = Math.max(hMax, h);
         lMin = Math.min(lMin, l);
-        console.log(hMax, lMin);
 
-        let candle = new CandleStick(o, c, h, l, t);
+        let candle = new CandleStick(o, c, h, l, currCandleNum++);
         candles.push(candle);
+        
     }
 }
-
-console.log(hMax, lMin);
 
 function drawYAxis() {
     ctx.strokeStyle = "#000000";
@@ -194,6 +208,21 @@ function drawXAxis(){
         ctx.font = font + "px Arial";
         ctx.fillText(i, xLeft + (width - xLeft - xRight) / 50 * i, convertY(20));
     }
+}
+
+function drawSideBar(){
+    ctx.strokeStyle = "#000000";
+    ctx.fillStyle = "#000000";
+    ctx.beginPath();
+    ctx.moveTo(width - 250, 0);
+    ctx.lineTo(width - 250, height);
+    ctx.stroke();
+
+    ctx.font = font + "px Arial";
+    ctx.fillText("Candles", 1745, convertY(875));
+
+    ctx.font = font + "px Arial";
+    ctx.fillText("Speed", 1750, convertY(675));
 }
 
 
