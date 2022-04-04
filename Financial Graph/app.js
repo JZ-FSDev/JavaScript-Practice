@@ -14,8 +14,12 @@ canvas.addEventListener("mouseover", function (event) {
     isMouseHover = true
 });
 
-canvas.addEventListener("onclick", function (event) {
-    addLine();
+var x1, y1;
+var firstClick = false;
+var lineDrawMode = false;
+
+canvas.addEventListener("click", function (event) {
+    addLine(event);
 });
 
 document.addEventListener("DOMContentLoaded", startAnimation);
@@ -50,7 +54,7 @@ var onScreen;
 
 var candles = new Array;
 
-var lines = new Array;
+let lines = new Array;
 
 var updateSpeed = 1000;
 var msPassed = 0;
@@ -106,8 +110,28 @@ class Line {
     }
 }
 
-function addLine() {
-    
+function addLine(e) {
+    if(lineDrawMode){
+        if(!firstClick){
+            firstClick = true;
+            x1 = e.clientX - getExactPos(canvas).x;
+            y1 = e.clientY - getExactPos(canvas).y;
+        }else{
+            lines.push(new Line(x1, y1, e.clientX - getExactPos(canvas).x, e.clientY - getExactPos(canvas).y));
+            lineDrawMode = false;
+        }
+    }
+}
+
+function startDrawLineMode(){
+    lineDrawMode = true;
+    firstClick = false;
+}
+
+function clearDrawings(){
+    lines = [];
+    firstClick = false;
+    console.log(Hello);
 }
 
 function drawLines() {
@@ -120,7 +144,6 @@ function startAnimation() {
     generateCandles(numCandles);
     setInterval(() => {
         msPassed++;
-        console.log(msPassed);
         if (msPassed % updateSpeed == 0) {
             generateCandles(1);
             updateMaxMin();
@@ -130,6 +153,7 @@ function startAnimation() {
         drawYAxis();
         drawXAxis();
         drawSideBar();
+        drawLines();
         if (isMouseHover && mouseX < width - 250) {
             drawCrosshair();
             displayInfo();
@@ -138,8 +162,9 @@ function startAnimation() {
 }
 
 function displayInfo() {
-    if ((mouseX - xLeft) % xInc < candleWidth) {
+    if ((mouseX - xLeft) % xInc < candleWidth && mouseX < width - xRight - candleWidth) {
         ctx.strokeStyle = "#000000";
+        ctx.fillStyle = "#000000";
         ctx.font = font + "px Arial";
         let index = Math.round((mouseX - xLeft - 2) / xInc) + (candles.length - numCandles);
         if (index >= 0) {
