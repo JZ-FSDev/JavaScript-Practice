@@ -8,7 +8,15 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <canvas id="myChart" width="1900" height="950"></canvas>
+    <canvas style="z-index:1" id="myChart" width="1900" height="950"></canvas>
+    <!-- number of candles -->
+    <button type="button" style="z-index:2; position:absolute; top:100; left:1700">50</button>
+    <button type="button" style="z-index:2; position:absolute; top:100; left:1765">25</button>
+    <button type="button" style="z-index:2; position:absolute; top:100; left:1830">10</button>
+    <!-- speed of update -->
+    <button type="button" style="z-index:2; position:absolute; top:300; left:1700">5x</button>
+    <button type="button" style="z-index:2; position:absolute; top:300; left:1765">3x</button>
+    <button type="button" style="z-index:2; position:absolute; top:300; left:1830">1x</button>
     <script src="data.json"></script>
     <script src="app.js"></script>
 </body>
