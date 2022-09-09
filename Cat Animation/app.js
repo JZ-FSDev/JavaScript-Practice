@@ -6,7 +6,8 @@ const widthOfEachSprite = 295;
 const heightOfEachSprite = 453;
 
 // boundaries for limiting the cat from exiting the field area for 2.5D effect
-const yMax = 900;
+const yMaxTop = 900;
+const yMaxBottom = 1500;
 const xMaxLeft = 550;
 const xMaxRight = 3300;
 
@@ -22,9 +23,12 @@ canvas.addEventListener("click", getClickPosReal, false);
 function getClickPosReal(e) {
     clickX = e.clientX;
     clickY = e.clientY;
-    if (clickY < yMax) {
-        clickY = yMax;
+    if (clickY < yMaxTop) {
+        clickY = yMaxTop;
+    } else if (clickY > yMaxBottom){
+        clickY = yMaxBottom;
     }
+
     if (clickX < xMaxLeft) {
         clickX = xMaxLeft;
     } else if (clickX > xMaxRight) {
