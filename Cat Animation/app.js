@@ -11,6 +11,10 @@ const yMaxBottom = 1500;
 const xMaxLeft = 550;
 const xMaxRight = 3300;
 
+// min height and width when furthest away in the 2.5d plane
+const minHeight = heightOfEachSprite / 3;
+const minWidth = widthOfEachSprite / 3;
+
 var clickX = 1500 + getPosition(canvas).x + (widthOfEachSprite / 2);
 var clickY = 1000 + getPosition(canvas).y + (heightOfEachSprite / 2);
 
@@ -80,7 +84,7 @@ function getPosition(el) {
 function startAnimation() {
     var position = widthOfEachSprite; //start position for the image
     const speed = 100; //in millisecond(ms)
-    const diff = widthOfEachSprite; //difference between two sprites
+    diff = widthOfEachSprite; //difference between two sprites
 
     animationInterval = setInterval(() => {
         let parentPosition = getPosition(canvas);
@@ -95,21 +99,30 @@ function startAnimation() {
 
         if (xCat != xPos || yCat != yPos) {
             let translate3DValue = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
+            let heightValue = (heightOfEachSprite * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + minHeight;
+            let widthValue = (widthOfEachSprite * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + minWidth;
+            let sheetWidthValue = (widthOfSpriteSheet * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + (minWidth * 6);
+
+            diff = widthValue;
+            position = widthValue;
 
             cat.style.transform = translate3DValue;
+            cat.style.backgroundSize = sheetWidthValue + "px " + heightValue + "px";
+            cat.style.width = widthValue + "px";
+            cat.style.height = heightValue + "px";
 
             cat.style.backgroundPosition = `-${position}px 0px`;
 
-            if (position < widthOfSpriteSheet) {
-                position = position + diff;
+            if (position < sheetWidthValue) {
+                // increment the position by the width of each sprite each time
+                position += diff;
             } else {
-                //increment the position by the width of each sprite each time
-                position = widthOfEachSprite;
+                // reset the position to show first sprite after the last one
+                position = widthValue;
             }
         } else {
             cat.style.backgroundPosition = "0px 0px";
         }
-        //reset the position to show first sprite after the last one
     }, speed);
 }
 
