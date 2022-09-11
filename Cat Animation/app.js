@@ -19,15 +19,21 @@ const minWidth = widthOfEachSprite / 3;
 var currHeight;
 var currWidth;
 
+// differece in x and y pos and x and y cat to cause animation
 const clickThreshold = 10;
 
-var clickX = 1000;
-var clickY = 1000;
+var clickY = Math.random() * (yMaxBottom - yMaxTop + 1) + yMaxTop;
+var clickX = Math.random() * (xMaxRight - xMaxLeft + 1) + xMaxLeft;
 
+// position the center of the cat will move to
 var xPos;
 var yPos;
+
+// position of the center of the cat itself
 var xCat;
 var yCat;
+
+// distance of the canvase top and left border from the top and left border of the browser
 var parentPosition;
 
 var animationInterval;
@@ -97,7 +103,6 @@ function startAnimation() {
     var diff = 0; // difference between two sprites
 
     // Strings for css modification
-    var translate3DValue;
     let sheetWidthValue;
     
     parentPosition = getPosition(canvas);
@@ -110,30 +115,26 @@ function startAnimation() {
     cat.style.height = currHeight + "px";
 
     animationInterval = setInterval(() => {
-        // parentPosition = getPosition(canvas);
 
-        xCat = getOffset(cat).left - parentPosition.x;
-        yCat = getOffset(cat).top - parentPosition.y;
+        xCat = getPosition(cat).x - parentPosition.x;
+        yCat = getPosition(cat).y - parentPosition.y;
 
         xPos = clickX - parentPosition.x - (currWidth / 2);
         yPos = clickY - parentPosition.y - (currHeight / 2);
 
-        // console.log("xCat, yCat", xCat, yCat);
-        // console.log(xPos, yPos);
+        console.log("xCat, yCat", xCat, yCat);
+        console.log(xPos, yPos);
 
         if (Math.abs(xCat - xPos) > clickThreshold || Math.abs(yCat - yPos) > clickThreshold) {
             currHeight = (heightOfEachSprite * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + minHeight;
             currWidth = (widthOfEachSprite * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + minWidth;
 
-            xPos = clickX - parentPosition.x - (currWidth / 2);
-            yPos = clickY - parentPosition.y - (currHeight / 2);
-
             position = currWidth * diff;
 
-            translate3DValue = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
             sheetWidthValue = (widthOfSpriteSheet * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + (minWidth * 6);
 
-            cat.style.transform = translate3DValue;
+            cat.style.left = xPos + "px";
+            cat.style.top = yPos + "px";
             cat.style.backgroundSize = sheetWidthValue + "px " + currHeight + "px";
             cat.style.width = currWidth + "px";
             cat.style.height = currHeight + "px";
@@ -154,13 +155,4 @@ function startAnimation() {
             cat.style.backgroundPosition = "0px 0px";
         }
     }, speed);
-}
-
-
-function getOffset(el) {
-    const rect = el.getBoundingClientRect();
-    return {
-        left: rect.left + window.scrollX,
-        top: rect.top + window.scrollY
-    };
 }
