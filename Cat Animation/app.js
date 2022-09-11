@@ -24,6 +24,12 @@ const clickThreshold = 10;
 var clickX = 1000;
 var clickY = 1000;
 
+var xPos;
+var yPos;
+var xCat;
+var yCat;
+var parentPosition;
+
 var animationInterval;
 
 document.addEventListener("DOMContentLoaded", startAnimation);
@@ -44,17 +50,16 @@ function getClickPosReal(e) {
     } else if (clickX > xMaxRight) {
         clickX = xMaxRight;
     }
-    let parentPosition = getPosition(canvas);
 
-    let xCat = getOffset(cat).left - parentPosition.x;
-    let yCat = getOffset(cat).top - parentPosition.y;
-
-    let xPos = clickX - parentPosition.x - (widthOfEachSprite / 2);
-    let yPos = clickY - parentPosition.y - (heightOfEachSprite / 2);
+    parentPosition = getPosition(canvas);
+    xCat = getOffset(cat).left - parentPosition.x;
+    yCat = getOffset(cat).top - parentPosition.y;
+    xPos = clickX - parentPosition.x - (currWidth / 2);
+    yPos = clickY - parentPosition.y - (currHeight / 2);
 
     if (xCat > xPos) {
         cat.style.backgroundImage = "url(./images/Left_cat_sprite_sheet.png)";
-    } else if (xCat < xPos) {
+    }else{
         cat.style.backgroundImage = "url(./images/Right_cat_sprite_sheet.png)";
     }
 }
@@ -88,46 +93,50 @@ function getPosition(el) {
 
 function startAnimation() {
     var position = widthOfEachSprite; // start position for the image
-    const speed = 100; // in millisecond(ms)
+    const speed = 75; // in millisecond(ms)
     var diff = 0; // difference between two sprites
-    
-    let parentPosition = getPosition(canvas);
-    let xCat = getOffset(cat).left - parentPosition.x;
-    let yCat = getOffset(cat).top - parentPosition.y;
 
-    var heightValue = (heightOfEachSprite * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + minHeight;
-    var widthValue = widthValue = (widthOfEachSprite * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + minWidth;
-    cat.style.width = widthValue + "px";
-    cat.style.height = heightValue + "px";
+    // Strings for css modification
+    var translate3DValue;
+    let sheetWidthValue;
+    
+    parentPosition = getPosition(canvas);
+    xCat = getOffset(cat).left - parentPosition.x;
+    yCat = getOffset(cat).top - parentPosition.y;
+
+    currHeight = (heightOfEachSprite * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + minHeight;
+    currWidth = (widthOfEachSprite * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + minWidth;
+    cat.style.width = currWidth + "px";
+    cat.style.height = currHeight + "px";
 
     animationInterval = setInterval(() => {
-        parentPosition = getPosition(canvas);
+        // parentPosition = getPosition(canvas);
 
         xCat = getOffset(cat).left - parentPosition.x;
         yCat = getOffset(cat).top - parentPosition.y;
 
-        let xPos = clickX - parentPosition.x - (widthValue / 2);
-        let yPos = clickY - parentPosition.y - (heightValue / 2);
+        xPos = clickX - parentPosition.x - (currWidth / 2);
+        yPos = clickY - parentPosition.y - (currHeight / 2);
 
-        console.log("xCat, yCat", xCat, yCat);
-        console.log(xPos, yPos);
+        // console.log("xCat, yCat", xCat, yCat);
+        // console.log(xPos, yPos);
 
         if (Math.abs(xCat - xPos) > clickThreshold || Math.abs(yCat - yPos) > clickThreshold) {
+            currHeight = (heightOfEachSprite * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + minHeight;
+            currWidth = (widthOfEachSprite * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + minWidth;
 
-            let translate3DValue = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
-            heightValue = (heightOfEachSprite * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + minHeight;
-            widthValue = (widthOfEachSprite * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + minWidth;
-            let sheetWidthValue = (widthOfSpriteSheet * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + (minWidth * 6);
+            xPos = clickX - parentPosition.x - (currWidth / 2);
+            yPos = clickY - parentPosition.y - (currHeight / 2);
 
-            xPos = clickX - parentPosition.x - (widthValue / 2);
-            yPos = clickY - parentPosition.y - (heightValue / 2);
+            position = currWidth * diff;
 
-            position = widthValue * diff;
+            translate3DValue = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
+            sheetWidthValue = (widthOfSpriteSheet * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + (minWidth * 6);
 
             cat.style.transform = translate3DValue;
-            cat.style.backgroundSize = sheetWidthValue + "px " + heightValue + "px";
-            cat.style.width = widthValue + "px";
-            cat.style.height = heightValue + "px";
+            cat.style.backgroundSize = sheetWidthValue + "px " + currHeight + "px";
+            cat.style.width = currWidth + "px";
+            cat.style.height = currHeight + "px";
 
             cat.style.backgroundPosition = `-${position}px 0px`;
 
@@ -135,10 +144,10 @@ function startAnimation() {
             if (position < sheetWidthValue) {
                 // increment the position by the width of each sprite each time
                 diff++;
-                position = diff * widthValue;
+                position = diff * currWidth;
             } else {
                 // reset the position to show first sprite after the last one
-                position = widthValue;
+                position = currWidth;
                 diff = 0;
             }
         } else {
