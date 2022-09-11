@@ -2,9 +2,10 @@
     height: 453px;
     width: 295px;
     background: url(./images/Right_cat_sprite_sheet.png);
+    object-position: 1000px 1000px;
 
-    transform: translate3d(50px, 50px, 0);
-    transition: transform 1s cubic-bezier(.64,.32,.72,.96);
+    transform: translate3d(1000px, 1000px, 0);
+    transition: transform 0.5s cubic-bezier(.64,.32,.72,.96);
 }
 
 #canvas{
