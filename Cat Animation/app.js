@@ -6,7 +6,7 @@ const widthOfEachSprite = 295;
 const heightOfEachSprite = 453;
 
 // boundaries for limiting the cat from exiting the field area for 2.5D effect
-const yMaxTop = 900;
+const yMaxTop = 1100;
 const yMaxBottom = 1500;
 const xMaxLeft = 550;
 const xMaxRight = 3300;
@@ -15,8 +15,14 @@ const xMaxRight = 3300;
 const minHeight = heightOfEachSprite / 3;
 const minWidth = widthOfEachSprite / 3;
 
-var clickX = 1500 + getPosition(canvas).x + (widthOfEachSprite / 2);
-var clickY = 1000 + getPosition(canvas).y + (heightOfEachSprite / 2);
+// current dimensions of the cat
+var currHeight;
+var currWidth;
+
+const clickThreshold = 10;
+
+var clickX = 1000;
+var clickY = 1000;
 
 var animationInterval;
 
@@ -80,31 +86,43 @@ function getPosition(el) {
     };
 }
 
-
 function startAnimation() {
-    var position = widthOfEachSprite; //start position for the image
-    const speed = 100; //in millisecond(ms)
-    diff = widthOfEachSprite; //difference between two sprites
+    var position = widthOfEachSprite; // start position for the image
+    const speed = 100; // in millisecond(ms)
+    var diff = 0; // difference between two sprites
+    
+    let parentPosition = getPosition(canvas);
+    let xCat = getOffset(cat).left - parentPosition.x;
+    let yCat = getOffset(cat).top - parentPosition.y;
+
+    var heightValue = (heightOfEachSprite * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + minHeight;
+    var widthValue = widthValue = (widthOfEachSprite * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + minWidth;
+    cat.style.width = widthValue + "px";
+    cat.style.height = heightValue + "px";
 
     animationInterval = setInterval(() => {
-        let parentPosition = getPosition(canvas);
+        parentPosition = getPosition(canvas);
 
-        let xCat = getOffset(cat).left - parentPosition.x;
-        let yCat = getOffset(cat).top - parentPosition.y;
+        xCat = getOffset(cat).left - parentPosition.x;
+        yCat = getOffset(cat).top - parentPosition.y;
 
-        let xPos = clickX - parentPosition.x - (widthOfEachSprite / 2);
-        let yPos = clickY - parentPosition.y - (heightOfEachSprite / 2);
+        let xPos = clickX - parentPosition.x - (widthValue / 2);
+        let yPos = clickY - parentPosition.y - (heightValue / 2);
 
-        console.log(xCat, yCat);
+        console.log("xCat, yCat", xCat, yCat);
+        console.log(xPos, yPos);
 
-        if (xCat != xPos || yCat != yPos) {
+        if (Math.abs(xCat - xPos) > clickThreshold || Math.abs(yCat - yPos) > clickThreshold) {
+
             let translate3DValue = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
-            let heightValue = (heightOfEachSprite * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + minHeight;
-            let widthValue = (widthOfEachSprite * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + minWidth;
+            heightValue = (heightOfEachSprite * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + minHeight;
+            widthValue = (widthOfEachSprite * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + minWidth;
             let sheetWidthValue = (widthOfSpriteSheet * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + (minWidth * 6);
 
-            diff = widthValue;
-            position = widthValue;
+            xPos = clickX - parentPosition.x - (widthValue / 2);
+            yPos = clickY - parentPosition.y - (heightValue / 2);
+
+            position = widthValue * diff;
 
             cat.style.transform = translate3DValue;
             cat.style.backgroundSize = sheetWidthValue + "px " + heightValue + "px";
@@ -113,12 +131,15 @@ function startAnimation() {
 
             cat.style.backgroundPosition = `-${position}px 0px`;
 
+            // causes the animation
             if (position < sheetWidthValue) {
                 // increment the position by the width of each sprite each time
-                position += diff;
+                diff++;
+                position = diff * widthValue;
             } else {
                 // reset the position to show first sprite after the last one
                 position = widthValue;
+                diff = 0;
             }
         } else {
             cat.style.backgroundPosition = "0px 0px";
