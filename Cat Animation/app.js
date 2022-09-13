@@ -11,6 +11,8 @@ const yMaxBottom = 1500;
 const xMaxLeft = 550;
 const xMaxRight = 3300;
 
+const maxHypot =  Math.sqrt(Math.pow(xMaxRight - xMaxLeft, 2) + Math.pow(yMaxBottom - yMaxTop, 2));
+
 // min height and width when furthest away in the 2.5d plane
 const minHeight = heightOfEachSprite / 3;
 const minWidth = widthOfEachSprite / 3;
@@ -36,6 +38,8 @@ var yCat;
 // distance of the canvase top and left border from the top and left border of the browser
 var parentPosition;
 
+var transitionSpeed;
+
 var animationInterval;
 
 document.addEventListener("DOMContentLoaded", startAnimation);
@@ -58,8 +62,8 @@ function getClickPosReal(e) {
     }
 
     parentPosition = getPosition(canvas);
-    xCat = getOffset(cat).left - parentPosition.x;
-    yCat = getOffset(cat).top - parentPosition.y;
+    xCat = getPosition(cat).x - parentPosition.x;
+    yCat = getPosition(cat).y - parentPosition.y;
     xPos = clickX - parentPosition.x - (currWidth / 2);
     yPos = clickY - parentPosition.y - (currHeight / 2);
 
@@ -68,6 +72,9 @@ function getClickPosReal(e) {
     }else{
         cat.style.backgroundImage = "url(./images/Right_cat_sprite_sheet.png)";
     }
+    console.log(transitionSpeed);
+    transitionSpeed = Math.sqrt(Math.pow(Math.abs(xCat - xPos), 2) + Math.pow(Math.abs(yCat - yPos), 2)) / maxHypot + 0.5;
+    cat.style.transition = "left " + transitionSpeed + "s cubic-bezier(.64,.32,.72,.96), top " +  transitionSpeed  + "s cubic-bezier(.64,.32,.72,.96)";
 }
 
 // helper function to get an element's exact position
@@ -106,8 +113,8 @@ function startAnimation() {
     let sheetWidthValue;
     
     parentPosition = getPosition(canvas);
-    xCat = getOffset(cat).left - parentPosition.x;
-    yCat = getOffset(cat).top - parentPosition.y;
+    xCat = getPosition(cat).x - parentPosition.x;
+    yCat = getPosition(cat).y - parentPosition.y;
 
     currHeight = (heightOfEachSprite * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + minHeight;
     currWidth = (widthOfEachSprite * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + minWidth;
@@ -122,8 +129,8 @@ function startAnimation() {
         xPos = clickX - parentPosition.x - (currWidth / 2);
         yPos = clickY - parentPosition.y - (currHeight / 2);
 
-        console.log("xCat, yCat", xCat, yCat);
-        console.log(xPos, yPos);
+        // console.log("xCat, yCat", xCat, yCat);
+        // console.log(xPos, yPos);
 
         if (Math.abs(xCat - xPos) > clickThreshold || Math.abs(yCat - yPos) > clickThreshold) {
             currHeight = (heightOfEachSprite * (yCat - yMaxTop) / (yMaxBottom - yMaxTop)) + minHeight;
